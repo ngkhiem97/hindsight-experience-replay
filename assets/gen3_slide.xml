@@ -86,11 +86,11 @@
                                             <joint name="robot0:gripper_finger1_joint" pos="0 0 0" axis="0 0 1" damping="5" limited="true" range="0 0.804" class="2F-85" />
                                             <geom type="mesh" mesh="robotiq_85_knuckle_link"/>
                                             <body name="gripper_finger1_knuckle2_link" pos="0 0 0">
-                                                <joint name="gripper_finger1_joint2" pos="-0.00408552 -0.031486 0" axis="0 0 1" limited="true" range="0 0.804" class="2F-85" />
+                                                <joint name="robot0:gripper_finger1_joint2" pos="-0.00408552 -0.031486 0" axis="0 0 1" limited="true" range="0 0.804" class="2F-85" />
                                                 <geom pos="-0.00408552 -0.031486 0" type="mesh" mesh="robotiq_85_finger_link"/>
                                                 <body name="gripper_finger1_finger_tip_link" pos="0.05 -0.0200 0">
                                                     <inertial pos="0 0 0" quat="0 0.707107 0 0.707107" mass="0.019555" diaginertia="6e-06 5e-06 2e-06" />
-                                                    <joint name="gripper_finger1_finger_tip_joint" pos="-0.0066 -0.017245 0" stiffness="50" axis="0 0 1" limited="false" range="0 0.804" class="2F-85" />
+                                                    <joint name="robot0:gripper_finger1_finger_tip_joint" pos="-0.0066 -0.017245 0" stiffness="50" axis="0 0 1" limited="false" range="0 0.804" class="2F-85" />
                                                     <geom type="mesh" mesh="robotiq_85_finger_tip_link" friction="0.0 0.00 0.0000" solimp="0.99 0.99 0.01" solref="0.01 1" condim="4" margin="0.0"/>
                                                     <geom name="tip_left_pivot" pos="0.038 0.00925 0.00" size="0.0018" type="sphere" rgba="0 0.7 0.1 1" friction="1.2 0.005 0.0001" solimp="0.99 0.99 0.01" solref="0.01 1" condim="4" margin="0.0"/>
                                                     <geom name="tip_left_pivot_slip" pos="0.038 0.00925 0.00" size="0.0024" type="sphere" rgba="0 0.7 0.1 1" friction="0.5 0.005 0.0001" solimp="0.95 0.95 0.01" solref="0.01 1" condim="4" margin="0.0"/>
@@ -98,7 +98,7 @@
                                                     
                                                     <body name="gripper_finger1_inner_knuckle_link" pos="-0.0430396 0.0375994 0">
                                                         <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.029951" diaginertia="3.9e-05 3.5e-05 5e-06" />
-                                                        <joint name="gripper_finger1_inner_knuckle_joint" pos="0.0430396 -0.0375994 0" axis="0 0 1" limited="true" range="0 0.804" class="2F-85" />
+                                                        <joint name="robot0:gripper_finger1_inner_knuckle_joint" pos="0.0430396 -0.0375994 0" axis="0 0 1" limited="true" range="0 0.804" class="2F-85" />
                                                         <geom type="mesh" mesh="robotiq_85_inner_knuckle_link"/> 
                                                                                                 
                                                         <site name="gf1a_s" pos="0 0 0" rgba= "0.9 0.1 0.1 1.0" size="0.002,0.002,0.002"/>
@@ -112,18 +112,18 @@
                                             <joint name="robot0:gripper_finger2_joint" pos="0 0 0" axis="0 0 1" damping="5" limited="true" range="0 0.804" class="2F-85" />
                                             <geom type="mesh" mesh="robotiq_85_knuckle_link"/>
                                             <body name="gripper_finger2_knuckle2_link" pos="0 0 0">
-                                                <joint name="gripper_finger2_joint2" pos="-0.00408552 -0.031486 0" axis="0 0 1" limited="true" range="0 0.804" class="2F-85" />
+                                                <joint name="robot0:gripper_finger2_joint2" pos="-0.00408552 -0.031486 0" axis="0 0 1" limited="true" range="0 0.804" class="2F-85" />
                                                 <geom pos="-0.00408552 -0.031486 0" type="mesh" mesh="robotiq_85_finger_link"/>
                                                 <body name="gripper_finger2_finger_tip_link" pos="0.05 -0.0200 0">
                                                     <inertial pos="0 0 0" quat="0 0.707107 0 0.707107" mass="0.019555" diaginertia="6e-06 5e-06 2e-06" />
-                                                    <joint name="gripper_finger2_finger_tip_joint" pos="-0.0066 -0.017245 0" stiffness="50" axis="0 0 1" limited="false" range="0 0.804" class="2F-85" />
+                                                    <joint name="robot0:gripper_finger2_finger_tip_joint" pos="-0.0066 -0.017245 0" stiffness="50" axis="0 0 1" limited="false" range="0 0.804" class="2F-85" />
                                                     <geom type="mesh" mesh="robotiq_85_finger_tip_link" friction="0.0 0.00 0.0000" solimp="0.99 0.99 0.01" solref="0.01 1" condim="4" margin="0.0"/>
                                                     <geom name="tip_right_pivot" pos="0.038 0.00925 0.00" size="0.0018" type="sphere" rgba="0 0.7 0.1 1" friction="1.2 0.01 0.0001" solimp="0.99 0.99 0.01" solref="0.01 1" condim="4" margin="0.0"/>
                                                     <geom name="tip_right_pivot_slip" pos="0.038 0.00925 0.00" size="0.0024" type="sphere" rgba="0 0.7 0.1 1" friction="0.5 0.005 0.0001" solimp="0.95 0.95 0.01" solref="0.01 1" condim="4" margin="0.0"/>
                                                     <geom name="tip_right_rubber" pos="0.025 0.00925 0" size="0.019 0.001 0.011" type="box" rgba="1.5 0.7 0.1 1" friction="1 0.08 0.0001" solimp="0.98 0.98 0.01 0.5 6" solref="0.01 1" condim="4" margin="0.0"/>
                                                     <body name="gripper_finger2_inner_knuckle_link" pos="-0.0430396 0.0375994 0">
                                                         <inertial pos="0 0 0" quat="0.707107 0.707107 0 0" mass="0.029951" diaginertia="3.9e-05 3.5e-05 5e-06" />
-                                                        <joint name="gripper_finger2_inner_knuckle_joint" pos="0.0430396 -0.0375994 0" axis="0 0 1" limited="true" range="0 0.804" class="2F-85" />
+                                                        <joint name="robot0:gripper_finger2_inner_knuckle_joint" pos="0.0430396 -0.0375994 0" axis="0 0 1" limited="true" range="0 0.804" class="2F-85" />
                                                         <geom type="mesh" mesh="robotiq_85_inner_knuckle_link"/> 
                                                                                                 
                                                         <site name="gf2a_s" pos="0 0 0" rgba= "0.9 0.1 0.1 1.0" size="0.002,0.002,0.002"/>
