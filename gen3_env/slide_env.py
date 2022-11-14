@@ -34,7 +34,7 @@ class Gen3SlideEnv:
         self.close_gripper()
         print(self.sim.data.get_joint_qpos('target0:joint'))
         self.sim.data.set_joint_qpos('target0:joint', [0.375, 0.1, 0.82, 1., 0., 0., 0.])
-        return self.get_robot_qpos()
+        return self.get_robot_grip_xpos()
 
     def step(self, action):
         self.action = action
@@ -68,6 +68,10 @@ class Gen3SlideEnv:
     def get_robot_qpos(self):
         ''' get the position of the robot '''
         return self.sim.data.qpos[0:DOF]
+    
+    def get_robot_grip_xpos(self):
+        ''' get the position of the gripper '''
+        return self.sim.data.get_site_xpos('robot0:grip')
 
     def set_robot_pos(self, pos):
         ''' set the initial position of the robot '''
