@@ -19,7 +19,7 @@ class Gen3SlideEnv:
             self.model = mujoco_py.load_model_from_xml(f.read())
         self.sim = MjSim(self.model)
         self.viewer = MjViewer(self.sim)
-        self.goal = self.sim.data.get_body_xpos('Goal')
+        self.goal = self.get_target_pos()
         self.velocity_ctrl = VelocityController()
         self.action = np.zeros(action_space)
         self.twist_ee = np.zeros(TWIST_SPACE)
@@ -32,8 +32,7 @@ class Gen3SlideEnv:
         self.sim.reset()
         self.set_robot_pos(ROBOT_INIT_POS)
         self.close_gripper()
-        print(self.sim.data.get_joint_qpos('target0:joint'))
-        self.sim.data.set_joint_qpos('target0:joint', [0.375, 0.1, 0.82, 1., 0., 0., 0.])
+        self.generate_random_target()
         return self.get_robot_grip_xpos()
 
     def step(self, action):
@@ -57,6 +56,23 @@ class Gen3SlideEnv:
             self.sim.data.ctrl[gripper1_index] = self.sim.data.ctrl[gripper1_index]+0.01
             self.sim.data.ctrl[gripper2_index] = self.sim.data.ctrl[gripper2_index]+0.01
 
+    def generate_random_target(self):
+        ''' generate a random target '''
+        base_qpos = [0.475, 0.0, 0.82, 1., 0., 0., 0.]
+        base_qpos[0] += np.random.uniform(-0.15, 0.15)
+        base_qpos[1] += np.random.uniform(-0.15, 0.15)
+        self.sim.data.set_joint_qpos('target0:joint', base_qpos)
+        self.goal = self.get_target_pos()
+        return self.goal
+
+    def get_env_speed(self):
+        ''' get the speed of the environment '''
+        return self.speed
+
+    def get_target_pos(self):
+        ''' get the position of the target '''
+        return self.sim.data.get_joint_qpos('target0:joint')
+
     def get_robot_joint_names(self):
         ''' get the names of the robot's joints '''
         return self.sim.model.joint_names
@@ -73,6 +89,10 @@ class Gen3SlideEnv:
         ''' get the position of the gripper '''
         return self.sim.data.get_site_xpos('robot0:grip')
 
+    def set_env_speed(self, speed):
+        ''' set the speed of the environment '''
+        self.speed = speed
+
     def set_robot_pos(self, pos):
         ''' set the initial position of the robot '''
         self.sim.data.qpos[0:DOF] = pos
@@ -82,7 +102,7 @@ class Gen3SlideEnv:
         self.sim.data.ctrl[0:-1] = ctrl
 
 if __name__ == "__main__":
-    env = Gen3SlideEnv('gen3_slide.xml', 4, 4)
+    env = Gen3SlideEnv('gen3_slide.xml', 4, 1)
     env.reset()
     speed = .01
     step = 0
