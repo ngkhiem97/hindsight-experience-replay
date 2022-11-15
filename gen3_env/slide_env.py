@@ -5,9 +5,7 @@ from mujoco_py.utils import remove_empty_lines
 from mujoco_py.builder import build_callback_fn
 import numpy as np
 from collections import deque
-import threading
 from control import VelocityController
-from pprint import pprint
 
 ROBOT_INIT_POS = [-0.07370902, 0.18526047, -3.05346724, -1.93002792, -0.01739147, -1.04480512, 1.59032335]
 DOF = 7
