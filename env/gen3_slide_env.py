@@ -3,23 +3,27 @@ from mujoco_py import load_model_from_xml, MjSim, MjViewer, MjRenderContextOffsc
 from mujoco_py import cymj
 from mujoco_py.utils import remove_empty_lines
 from mujoco_py.builder import build_callback_fn
+from gym import spaces
 import numpy as np
 from collections import deque
-from control import VelocityController
+from env.vel_control import VelocityController
 
 ROBOT_INIT_POS = [-0.07370902, 0.18526047, -3.05346724, -1.93002792, -0.01739147, -1.04480512, 1.59032335]
 DOF = 7
 TWIST_SPACE = 6
+ACTION_SPACE = 3
+ACTION_HIGH = 0.5
 
 class Gen3SlideEnv:
-    def __init__(self, model_path, action_space, speed=1.0, distance_threshold=0.1, reward_type='sparse'):
+    def __init__(self, model_path, speed=1.0, distance_threshold=0.01, reward_type='sparse', nsubsteps=20):
         with open(model_path, 'r') as f:
             self.model = mujoco_py.load_model_from_xml(f.read())
-        self.sim = MjSim(self.model)
+        self.sim = MjSim(self.model, nsubsteps=nsubsteps)
         self.viewer = MjViewer(self.sim)
         self.goal = self.get_target_pos()
         self.velocity_ctrl = VelocityController()
-        self.action = np.zeros(action_space)
+        self.action_space = spaces.Box(low=-ACTION_HIGH, high=ACTION_HIGH, shape=(ACTION_SPACE,), dtype='float32')
+        self.action = np.zeros(ACTION_SPACE)
         self.twist_ee = np.zeros(TWIST_SPACE)
         self.v_tgt = np.zeros(DOF)
         self.queue = deque(maxlen=10)
@@ -60,16 +64,17 @@ class Gen3SlideEnv:
         assert goal_a.shape == goal_b.shape
         return np.linalg.norm(goal_a - goal_b, axis=-1)
 
-    def compute_reward(self, achieved_goal, desired_goal, info):
+    def compute_reward(self, achieved_goal, desired_goal, info=None):
         ''' compute the reward of the robot '''
-        if self.reward_type == 'sparse':
-            return -(1-info['is_success'])
+        d = self.goal_distance(achieved_goal, desired_goal)
+        if self.reward_type == "sparse":
+            return -(d > self.distance_threshold).astype(np.float32)
         else:
-            return -self.goal_distance(achieved_goal, desired_goal)
+            return -d
 
     def get_velocity(self, action):
         ''' get the velocity of the robot '''
-        self.twist_ee[0:3] = action[0:3]
+        self.twist_ee[0:ACTION_SPACE] = action[0:ACTION_SPACE]
         return self.speed*self.velocity_ctrl.get_joint_vel_worldframe(self.twist_ee, np.array(self.sim.data.qpos[0:DOF]), np.array(self.sim.data.qvel[0:DOF]))
 
     def close_gripper(self):
@@ -91,9 +96,10 @@ class Gen3SlideEnv:
 
     def get_obs(self):
         ''' get the observation of the robot '''
+        grip_pos = self.get_robot_grip_xpos()
         return {
-            "observation": np.array(self.get_robot_grip_xpos()),
-            "achieved_goal": np.array(self.get_robot_grip_xpos()),
+            "observation": grip_pos,
+            "achieved_goal": grip_pos,
             "desired_goal": np.array(self.goal),
         }
 
@@ -133,20 +139,21 @@ class Gen3SlideEnv:
         ''' set the motors' control of the robot '''
         self.sim.data.ctrl[0:-1] = ctrl
 
-if __name__ == "__main__":
-    env = Gen3SlideEnv('gen3_slide.xml', 4, 12)
-    obs = env.reset()
-    print("observation: ", obs)
-    speed = .01
-    step = 0
-    while True:
-        if step % 10 == 0 and speed < 1 and speed > 0:
-            speed += .01
-        elif speed >= 1:
-            speed = -0.01
-        elif step % 10 == 0 and speed < 0 and speed > -1:
-            speed -= .01
-        elif speed <= -1:
-            speed = 0.01
-        print(env.step([speed, 0, 0, 0]))
-        step += 1
+# # for testing purpose
+# if __name__ == "__main__":
+#     env = Gen3SlideEnv('gen3_slide.xml', 4, 2)
+#     obs = env.reset()
+#     print("observation: ", obs)
+#     speed = .01
+#     step = 0
+#     while True:
+#         if step % 10 == 0 and speed < 1 and speed > 0:
+#             speed += .01
+#         elif speed >= 1:
+#             speed = -0.01
+#         elif step % 10 == 0 and speed < 0 and speed > -1:
+#             speed -= .01
+#         elif speed <= -1:
+#             speed = 0.01
+#         print(env.step([0, 0, speed]))
+#         step += 1

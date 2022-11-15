@@ -62,7 +62,7 @@ class ddpg_agent:
                 os.mkdir(self.args.save_dir)
     
             # path to save the model
-            self.model_path = os.path.join(self.args.save_dir, self.args.env_name)
+            self.model_path = os.path.join(self.args.save_dir, "gen3_slide")
             if not os.path.exists(self.model_path):
                 os.mkdir(self.model_path)
 
@@ -95,7 +95,8 @@ class ddpg_agent:
                             action = self._select_actions(pi)
                 
                         # feed the actions into the environment
-                        observation_new, _, _, info = self.env.step(action)
+                        observation_new, reward, done, info = self.env.step(action)
+                        # print(observation_new, reward, done, info)
                         obs_new = observation_new['observation']
                         ag_new = observation_new['achieved_goal']
                 

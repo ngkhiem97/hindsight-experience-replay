@@ -18,7 +18,6 @@ class her_sampler:
         # select which rollouts and which timesteps to be used
         episode_idxs = np.random.randint(0, rollout_batch_size, batch_size)
         t_samples = np.random.randint(T, size=batch_size)
-        print("t_samples: ", t_samples)
         transitions = {key: episode_batch[key][episode_idxs, t_samples].copy() for key in episode_batch.keys()}
 
         # her idx
