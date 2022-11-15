@@ -14,8 +14,8 @@ DOF = 7
 TWIST_SPACE = 6
 
 class Gen3SlideEnv:
-    def __init__(self, modelFile, action_space, speed=1.0):
-        with open(modelFile, 'r') as f:
+    def __init__(self, model_path, action_space, speed=1.0, distance_threshold=0.1, reward_type='sparse'):
+        with open(model_path, 'r') as f:
             self.model = mujoco_py.load_model_from_xml(f.read())
         self.sim = MjSim(self.model)
         self.viewer = MjViewer(self.sim)
@@ -27,13 +27,16 @@ class Gen3SlideEnv:
         self.queue = deque(maxlen=10)
         self.queue_img = deque(maxlen=10)
         self.speed = speed
+        self.distance_threshold = distance_threshold
+        self.reward_type = reward_type
 
     def reset(self):
         self.sim.reset()
         self.set_robot_pos(ROBOT_INIT_POS)
         self.close_gripper()
         self.generate_random_target()
-        return self.get_robot_grip_xpos()
+        self.sim.step()
+        return self.get_obs()
 
     def step(self, action):
         self.action = action
@@ -42,6 +45,29 @@ class Gen3SlideEnv:
         self.sim.data.qvel[0:DOF] = self.v_tgt[0:DOF].T
         self.sim.step()
         self.viewer.render()
+        obs = self.get_obs()
+        info = {
+            'is_success': self.is_success(obs["achieved_goal"], self.goal),
+        }
+        reward = self.compute_reward(obs['achieved_goal'], obs['desired_goal'], info)
+        done = bool(info['is_success'])
+        return obs, reward, done, info
+
+    def is_success(self, achieved_goal, desired_goal):
+        ''' check if the robot has reached the target '''
+        d = self.goal_distance(achieved_goal, desired_goal)
+        return (d < self.distance_threshold).astype(np.float32)
+    
+    def goal_distance(self, goal_a, goal_b):
+        assert goal_a.shape == goal_b.shape
+        return np.linalg.norm(goal_a - goal_b, axis=-1)
+
+    def compute_reward(self, achieved_goal, desired_goal, info):
+        ''' compute the reward of the robot '''
+        if self.reward_type == 'sparse':
+            return -(1-info['is_success'])
+        else:
+            return -self.goal_distance(achieved_goal, desired_goal)
 
     def get_velocity(self, action):
         ''' get the velocity of the robot '''
@@ -65,13 +91,21 @@ class Gen3SlideEnv:
         self.goal = self.get_target_pos()
         return self.goal
 
+    def get_obs(self):
+        ''' get the observation of the robot '''
+        return {
+            "observation": np.array(self.get_robot_grip_xpos()),
+            "achieved_goal": np.array(self.get_robot_grip_xpos()),
+            "desired_goal": np.array(self.goal),
+        }
+
     def get_env_speed(self):
         ''' get the speed of the environment '''
         return self.speed
 
     def get_target_pos(self):
         ''' get the position of the target '''
-        return self.sim.data.get_joint_qpos('target0:joint')
+        return self.sim.data.get_joint_qpos('target0:joint')[0:3]
 
     def get_robot_joint_names(self):
         ''' get the names of the robot's joints '''
@@ -102,8 +136,9 @@ class Gen3SlideEnv:
         self.sim.data.ctrl[0:-1] = ctrl
 
 if __name__ == "__main__":
-    env = Gen3SlideEnv('gen3_slide.xml', 4, 1)
-    env.reset()
+    env = Gen3SlideEnv('gen3_slide.xml', 4, 12)
+    obs = env.reset()
+    print("observation: ", obs)
     speed = .01
     step = 0
     while True:
@@ -115,6 +150,5 @@ if __name__ == "__main__":
             speed -= .01
         elif speed <= -1:
             speed = 0.01
-        env.step([speed, 0, 0, 0])
+        print(env.step([speed, 0, 0, 0]))
         step += 1
-        print(env.sim.data.get_site_xpos('robot0:grip'))
