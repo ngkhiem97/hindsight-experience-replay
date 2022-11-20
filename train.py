@@ -1,8 +1,14 @@
 from env.gen3_slide_env import Gen3SlideEnv
 from rl_modules.ddpg_agent import ddpg_agent
 from arguments import get_args
+import os
 
 if __name__ == "__main__":
+    # take the configuration for the HER
+    os.environ['OMP_NUM_THREADS'] = '1'
+    os.environ['MKL_NUM_THREADS'] = '1'
+    os.environ['IN_MPI'] = '1'
+
     args = get_args()
     env = Gen3SlideEnv('./assets/gen3_slide.xml', 8, reward_type='dense')
     obs = env.reset()
