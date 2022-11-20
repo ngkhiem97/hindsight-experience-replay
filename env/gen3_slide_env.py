@@ -15,7 +15,7 @@ ACTION_SPACE = 3
 ACTION_HIGH = 0.5
 
 class Gen3SlideEnv:
-    def __init__(self, model_path, speed=1.0, distance_threshold=0.01, reward_type='sparse', nsubsteps=20):
+    def __init__(self, model_path, speed=1.0, distance_threshold=0.01, reward_type='sparse', nsubsteps=50):
         with open(model_path, 'r') as f:
             self.model = mujoco_py.load_model_from_xml(f.read())
         self.sim = MjSim(self.model, nsubsteps=nsubsteps)
@@ -138,22 +138,3 @@ class Gen3SlideEnv:
     def set_robot_ctrl(self, ctrl):
         ''' set the motors' control of the robot '''
         self.sim.data.ctrl[0:-1] = ctrl
-
-# # for testing purpose
-# if __name__ == "__main__":
-#     env = Gen3SlideEnv('gen3_slide.xml', 4, 2)
-#     obs = env.reset()
-#     print("observation: ", obs)
-#     speed = .01
-#     step = 0
-#     while True:
-#         if step % 10 == 0 and speed < 1 and speed > 0:
-#             speed += .01
-#         elif speed >= 1:
-#             speed = -0.01
-#         elif step % 10 == 0 and speed < 0 and speed > -1:
-#             speed -= .01
-#         elif speed <= -1:
-#             speed = 0.01
-#         print(env.step([0, 0, speed]))
-#         step += 1
