@@ -95,8 +95,7 @@ class ddpg_agent:
                             action = self._select_actions(pi)
                 
                         # feed the actions into the environment
-                        observation_new, reward, done, info = self.env.step(action)
-                        # print(observation_new, reward, done, info)
+                        observation_new, _, _, _ = self.env.step(action)
                         obs_new = observation_new['observation']
                         ag_new = observation_new['achieved_goal']
                 
@@ -138,9 +137,9 @@ class ddpg_agent:
             success_rate = self._eval_agent()
             if MPI.COMM_WORLD.Get_rank() == 0:
                 print('[{}] epoch is: {}, eval success rate is: {:.3f}'.format(datetime.now(), epoch, success_rate))
-                time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+                date = datetime.now().strftime("%Y-%m-%d")
                 torch.save([self.o_norm.mean, self.o_norm.std, self.g_norm.mean, self.g_norm.std, self.actor_network.state_dict()], \
-                            self.model_path + f'/model-{time}.pt')
+                            self.model_path + f'/model-{date}.pt')
 
     # pre_process the inputs
     def _preproc_inputs(self, obs, g):
