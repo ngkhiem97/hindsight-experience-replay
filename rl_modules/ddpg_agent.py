@@ -8,7 +8,6 @@ from rl_modules.replay_buffer import replay_buffer
 from rl_modules.models import actor, critic
 from mpi_utils.normalizer import normalizer
 from her_modules.her import her_sampler
-import time
 
 """
 ddpg with HER (MPI-version)
