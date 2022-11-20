@@ -15,11 +15,11 @@ ACTION_SPACE = 3
 ACTION_HIGH = 0.5
 
 class Gen3SlideEnv:
-    def __init__(self, model_path, speed=1.0, distance_threshold=0.01, reward_type='sparse', nsubsteps=50):
+    def __init__(self, model_path, speed=1.0, distance_threshold=0.01, reward_type='sparse', nsubsteps=50, viewer=False):
         with open(model_path, 'r') as f:
             self.model = mujoco_py.load_model_from_xml(f.read())
         self.sim = MjSim(self.model, nsubsteps=nsubsteps)
-        self.viewer = MjViewer(self.sim)
+        self.viewer = MjViewer(self.sim) if viewer else None
         self.goal = self.get_target_pos()
         self.velocity_ctrl = VelocityController()
         self.action_space = spaces.Box(low=-ACTION_HIGH, high=ACTION_HIGH, shape=(ACTION_SPACE,), dtype='float32')
@@ -46,7 +46,8 @@ class Gen3SlideEnv:
         self.sim.data.qfrc_applied[0:DOF] = self.sim.data.qfrc_bias[0:DOF]
         self.sim.data.qvel[0:DOF] = self.v_tgt[0:DOF].T
         self.sim.step()
-        self.viewer.render()
+        if self.viewer:
+            self.viewer.render()
         obs = self.get_obs()
         info = {
             'is_success': self.is_success(obs["achieved_goal"], self.goal),
