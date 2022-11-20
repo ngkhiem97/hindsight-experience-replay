@@ -15,7 +15,7 @@ ACTION_SPACE = 3
 ACTION_HIGH = 0.5
 
 class Gen3SlideEnv:
-    def __init__(self, model_path, speed=1.0, distance_threshold=0.01, reward_type='sparse', nsubsteps=50, viewer=False):
+    def __init__(self, model_path, speed=1.0, distance_threshold=0.06, reward_type='sparse', nsubsteps=50, viewer=False):
         with open(model_path, 'r') as f:
             self.model = mujoco_py.load_model_from_xml(f.read())
         self.sim = MjSim(self.model, nsubsteps=nsubsteps)

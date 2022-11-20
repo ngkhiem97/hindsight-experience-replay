@@ -8,6 +8,7 @@ from rl_modules.replay_buffer import replay_buffer
 from rl_modules.models import actor, critic
 from mpi_utils.normalizer import normalizer
 from her_modules.her import her_sampler
+import time
 
 """
 ddpg with HER (MPI-version)
@@ -138,8 +139,9 @@ class ddpg_agent:
             success_rate = self._eval_agent()
             if MPI.COMM_WORLD.Get_rank() == 0:
                 print('[{}] epoch is: {}, eval success rate is: {:.3f}'.format(datetime.now(), epoch, success_rate))
+                time = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
                 torch.save([self.o_norm.mean, self.o_norm.std, self.g_norm.mean, self.g_norm.std, self.actor_network.state_dict()], \
-                            self.model_path + '/model.pt')
+                            self.model_path + f'/model-{time}.pt')
 
     # pre_process the inputs
     def _preproc_inputs(self, obs, g):
@@ -275,6 +277,8 @@ class ddpg_agent:
         critic_loss.backward()
         sync_grads(self.critic_network)
         self.critic_optim.step()
+
+        print('actor_loss: ', actor_loss.item(), 'critic_loss: ', critic_loss.item(), end='\r')
 
     # do the evaluation
     def _eval_agent(self):
