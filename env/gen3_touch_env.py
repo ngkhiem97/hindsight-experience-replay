@@ -14,7 +14,7 @@ TWIST_SPACE = 6
 ACTION_SPACE = 3
 ACTION_HIGH = 0.5
 
-class Gen3SlideEnv:
+class Gen3TouchEnv:
     def __init__(self, model_path, speed=1.0, distance_threshold=0.06, reward_type='sparse', nsubsteps=50, viewer=False):
         with open(model_path, 'r') as f:
             self.model = mujoco_py.load_model_from_xml(f.read())
@@ -37,7 +37,6 @@ class Gen3SlideEnv:
         self.set_robot_pos(ROBOT_INIT_POS)
         self.close_gripper()
         self.generate_random_target()
-        self.generate_random_object()
         self.sim.step()
         return self.get_obs()
 
@@ -55,7 +54,6 @@ class Gen3SlideEnv:
         }
         reward = self.compute_reward(obs['achieved_goal'], obs['desired_goal'], info)
         done = bool(info['is_success'])
-        self.sim.step()
         return obs, reward, done, info
 
     def is_success(self, achieved_goal, desired_goal):
@@ -90,31 +88,22 @@ class Gen3SlideEnv:
 
     def generate_random_target(self):
         ''' generate a random target '''
-        base_qpos = [0.575, 0.0, 0.82, 1., 0., 0., 0.]
+        base_qpos = [0.475, 0.0, 0.82, 1., 0., 0., 0.]
         base_qpos[0] += np.random.uniform(-0.15, 0.15)
         base_qpos[1] += np.random.uniform(-0.15, 0.15)
         self.sim.data.set_joint_qpos('target0:joint', base_qpos)
         self.goal = self.get_target_pos()
         return self.goal
-    
-    def generate_random_object(self):
-        ''' generate a random object '''
-        base_qpos = [0.375, 0.0, 0.82, 1., 0., 0., 0.]
-        base_qpos[0] += np.random.uniform(-0.10, 0.10)
-        base_qpos[1] += np.random.uniform(-0.10, 0.10)
-        self.sim.data.set_joint_qpos('object0:joint', base_qpos)
-        return self.get_object_pos()
 
     def get_obs(self):
         ''' get the observation of the robot '''
         grip_pos = self.get_robot_grip_xpos()
         grip_vel = self.get_robot_grip_xvelp()
-        object_pos = self.get_object_pos()
-        goal_rel_pos = self.goal - object_pos
-        obs = np.concatenate([grip_pos, grip_vel, object_pos, goal_rel_pos])
+        goal_rel_pos = self.goal - grip_pos
+        obs = np.concatenate([grip_pos, grip_vel, goal_rel_pos])
         return {
             "observation": obs,
-            "achieved_goal": object_pos,
+            "achieved_goal": grip_pos,
             "desired_goal": np.array(self.goal),
         }
 
@@ -157,7 +146,3 @@ class Gen3SlideEnv:
     def set_robot_ctrl(self, ctrl):
         ''' set the motors' control of the robot '''
         self.sim.data.ctrl[0:-1] = ctrl
-
-    def get_object_pos(self):
-        ''' get the position of the object '''
-        return self.sim.data.get_site_xpos('object0ConSurf1')[0:3]
