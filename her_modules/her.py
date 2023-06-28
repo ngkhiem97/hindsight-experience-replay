@@ -26,7 +26,7 @@ class her_sampler:
         future_offset = future_offset.astype(int)
         future_t = (t_samples + 1 + future_offset)[her_indexes]
 
-        # replace go with achieved goal
+        # replace goal with achieved goal
         future_ag = episode_batch['ag'][episode_idxs[her_indexes], future_t]
         transitions['g'][her_indexes] = future_ag
 

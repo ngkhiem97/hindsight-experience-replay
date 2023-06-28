@@ -18,7 +18,7 @@ def process_inputs(o, g, o_mean, o_std, g_mean, g_std, args):
 
 if __name__ == '__main__':
     args = get_args()
-    model_path = args.save_dir + 'gen3_slide' + '/model-2022-12-01.pt'
+    model_path = args.save_dir + 'gen3_slide' + '/model-2023-06-28.pt'
     o_mean, o_std, g_mean, g_std, model = torch.load(model_path, map_location=lambda storage, loc: storage)
     env = Gen3SlideEnv('./assets/gen3_slide.xml', 8, reward_type='dense', viewer=True)
     observation = env.reset()
